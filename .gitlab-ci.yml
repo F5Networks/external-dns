@@ -95,7 +95,7 @@ e2e_test:
   stage: e2e_test
   trigger:
     project: f5aas/external-dns-test
-    branch: master
+    branch: ${REGRESSION_BRANCH}
     strategy: depend
   needs:
     - job: build_docker
