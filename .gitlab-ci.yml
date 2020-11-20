@@ -73,7 +73,7 @@ f5cs_unit_test:
     - f5aas-executor
   image: $BUILD_IMAGE
   <<: *set_version_before_script
-  stage: test
+  stage: unit_test
   script:
     - GOPRIVATE=gitswarm.f5net.com/f5aas/*
     - API="true" make -f Makefile.f5cs test
@@ -84,7 +84,7 @@ lint:
   image: $BUILD_IMAGE
   before_script:
     - apk add bash
-  stage: test
+  stage: unit_test
   except:
     - tags
   script:
