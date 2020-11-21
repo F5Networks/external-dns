@@ -8,8 +8,9 @@ variables:
   TRIGGER_IMAGE: quay.pdsea.f5net.com/f5aas/pipeline-trigger:0.1.3
 
 stages:
-  - test
+  - unit_test
   - package
+  - e2e_test
 
 .set_version_before_script_tmpl: &set_version_before_script
   before_script:
@@ -62,7 +63,7 @@ unit_test:
     - f5aas-executor
   image: $BUILD_IMAGE
   <<: *set_version_before_script
-  stage: test
+  stage: unit_test
   script:
     - GOPRIVATE=gitswarm.f5net.com/f5aas/*
     - make -f Makefile.f5cs test
@@ -72,7 +73,7 @@ f5cs_unit_test:
     - f5aas-executor
   image: $BUILD_IMAGE
   <<: *set_version_before_script
-  stage: test
+  stage: unit_test
   script:
     - GOPRIVATE=gitswarm.f5net.com/f5aas/*
     - API="true" make -f Makefile.f5cs test
@@ -83,9 +84,18 @@ lint:
   image: $BUILD_IMAGE
   before_script:
     - apk add bash
-  stage: test
+  stage: unit_test
   except:
     - tags
   script:
     - export GOFLAGS=-mod=readonly
     - make lint
+
+e2e_test:
+  stage: e2e_test
+  trigger:
+    project: f5aas/external-dns-test
+    branch: ${REGRESSION_BRANCH}
+    strategy: depend
+  needs:
+    - job: build_docker
